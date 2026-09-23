@@ -18,8 +18,8 @@ $url = Imgproxy::builder()
 
 ## Requirements
 
-- PHP 8.3+
-- Laravel 11+
+- PHP 8.4+
+- Laravel 12+
 - OpenSSL extension (for source encryption)
 
 ## Installation & setup
