@@ -2,5 +2,6 @@ providers:
   - HosmelQ\Imgproxy\Laravel\ImgproxyServiceProvider
 
 workbench:
+  install: false
   discovers:
     config: true

@@ -67,7 +67,7 @@ final class ImgproxyManager
      */
     private function applySourceEncoding(UrlBuilder $builder): UrlBuilder
     {
-        $encoding = strtolower(Config::sourceEncoding());
+        $encoding = mb_strtolower(Config::sourceEncoding());
 
         return match ($encoding) {
             'base64' => $builder->useBase64Source(),

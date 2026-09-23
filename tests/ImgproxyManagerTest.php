@@ -45,15 +45,15 @@ it('trims the signature to the configured size', function (): void {
         ->format('jpg')
         ->build('https://example.com/image.jpg');
 
-    $segments = explode('/', trim(parse_url($url, PHP_URL_PATH), '/'));
+    $segments = explode('/', mb_trim(parse_url($url, PHP_URL_PATH), '/'));
     $signature = array_shift($segments);
     $path = '/'.implode('/', $segments);
-    $expectedSignature = base64_encode_url(substr(hash_hmac(
+    $expectedSignature = base64_encode_url(mb_substr(hash_hmac(
         'sha256',
         hex2bin('68656c6c6f').$path,
         hex2bin('736563726574'),
         true
-    ), 0, 2));
+    ), 0, 2, '8bit'));
 
     expect($path)->toContain('/format:jpg/resize:fit:800:600/')
         ->and($signature)->toBe($expectedSignature)
@@ -94,7 +94,7 @@ it('uses configured encryption key and IV generator', function (): void {
 
     $url = Imgproxy::builder()->build('https://example.com/locked.png');
     $path = parse_url($url, PHP_URL_PATH);
-    $segments = explode('/', trim($path, '/'));
+    $segments = explode('/', mb_trim($path, '/'));
     $decoded = base64_decode_url(end($segments));
 
     expect($path)->toContain('/enc/')
@@ -114,7 +114,7 @@ it('allows overriding a previously registered IV generator', function (): void {
 
     $url = Imgproxy::builder()->build('https://example.com/locked-again.png');
     $path = parse_url($url, PHP_URL_PATH);
-    $segments = explode('/', trim($path, '/'));
+    $segments = explode('/', mb_trim($path, '/'));
     $decoded = base64_decode_url(end($segments));
 
     expect($decoded)->toStartWith('second-iv-654321');

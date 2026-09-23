@@ -38,6 +38,7 @@
     "global_namespace_import": true,
     "lambda_not_used_import": true,
     "lowercase_keywords": true,
+    "mb_str_functions": true,
     "method_chaining_indentation": true,
     "modernize_types_casting": true,
     "multiline_whitespace_before_semicolons": true,
