@@ -1,0 +1,29 @@
+name: /dev/null
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  commit:
+    name: Commit release
+
+    environment: devnull
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Commit to /dev/null
+        uses: nunomaduro/dev-null.sh/.github/actions/commit@4394db4e2ee9811892dd0a56e34839dfd1cf18b3 # production
+        with:
+          body: |
+            ${{ github.event.repository.name }} ${{ github.event.release.tag_name }} is out.
+
+            Build imgproxy URLs in Laravel with optional encryption and signing.
+
+            ${{ github.event.release.body }}
+
+            Release notes: ${{ github.event.release.html_url }}
+          ssh-key: ${{ secrets.DEVNULL_SSH_KEY }}

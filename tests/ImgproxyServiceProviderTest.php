@@ -15,6 +15,8 @@ it('registers the facade, macro, and manager singleton', function (): void {
 
     expect(Imgproxy::builder())->toBeInstanceOf(UrlBuilder::class)
         ->and(FilesystemAdapter::hasMacro('imgproxy'))->toBeTrue()
-        ->and(Storage::disk('public')->imgproxy('images/path.jpg'))->toBeInstanceOf(PendingImgproxy::class)
+        ->and(Storage::disk('public')->imgproxy('images/path.jpg'))->toBeInstanceOf(
+            PendingImgproxy::class,
+        )
         ->and($first)->toBe($second);
 });

@@ -22,7 +22,10 @@ it('throws when encryption key is missing for encrypted sources', function (): v
     ]);
 
     Imgproxy::builder()->build('https://example.com/private/secret.png');
-})->throws(InvalidArgumentException::class, 'imgproxy encryption_key is required when source_encoding is encrypted.');
+})->throws(
+    InvalidArgumentException::class,
+    'imgproxy encryption_key is required when source_encoding is encrypted.',
+);
 
 it('returns a fresh builder instance on each call', function (): void {
     $first = Imgproxy::builder();
@@ -44,7 +47,6 @@ it('trims the signature to the configured size', function (): void {
         ->resize(ResizingType::Fit, width: 800, height: 600)
         ->format('jpg')
         ->build('https://example.com/image.jpg');
-
     $segments = explode('/', mb_trim(parse_url($url, PHP_URL_PATH), '/'));
     $signature = array_shift($segments);
     $path = '/'.implode('/', $segments);
@@ -52,7 +54,7 @@ it('trims the signature to the configured size', function (): void {
         'sha256',
         hex2bin('68656c6c6f').$path,
         hex2bin('736563726574'),
-        true
+        true,
     ), 0, 2, '8bit'));
 
     expect($path)->toContain('/format:jpg/resize:fit:800:600/')
@@ -67,7 +69,7 @@ it('builds plain source URLs when configured', function (): void {
 
     expect($url)->toBe(sprintf(
         'https://imgproxy.test/insecure/plain/%s',
-        rawurlencode('https://example.com/assets/photo.jpg')
+        rawurlencode('https://example.com/assets/photo.jpg'),
     ));
 });
 
@@ -97,8 +99,7 @@ it('uses configured encryption key and IV generator', function (): void {
     $segments = explode('/', mb_trim($path, '/'));
     $decoded = base64_decode_url(end($segments));
 
-    expect($path)->toContain('/enc/')
-        ->and($decoded)->toStartWith($iv);
+    expect($path)->toContain('/enc/')->and($decoded)->toStartWith($iv);
 
     Imgproxy::buildIvUsing(null);
 });

@@ -28,8 +28,8 @@ class Config
             sprintf(
                 'Configuration value for key [%s] must be a string or null, %s given.',
                 'imgproxy.encryption_key',
-                gettype($value)
-            )
+                gettype($value),
+            ),
         );
 
         return $value;
@@ -47,8 +47,8 @@ class Config
             sprintf(
                 'Configuration value for key [%s] must be a string or null, %s given.',
                 'imgproxy.key',
-                gettype($value)
-            )
+                gettype($value),
+            ),
         );
 
         return $value;
@@ -66,8 +66,8 @@ class Config
             sprintf(
                 'Configuration value for key [%s] must be a string or null, %s given.',
                 'imgproxy.salt',
-                gettype($value)
-            )
+                gettype($value),
+            ),
         );
 
         return $value;
@@ -85,8 +85,8 @@ class Config
             sprintf(
                 'Configuration value for key [%s] must be an integer or null, %s given.',
                 'imgproxy.signature_size',
-                gettype($value)
-            )
+                gettype($value),
+            ),
         );
 
         return $value;

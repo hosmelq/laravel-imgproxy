@@ -6,6 +6,4 @@ arch()->preset()->php();
 arch()->preset()->laravel();
 arch()->preset()->security()->ignoring('assert');
 
-arch('strict types')
-    ->expect('HosmelQ\Imgproxy\Laravel')
-    ->toUseStrictTypes();
+arch('strict types')->expect('HosmelQ\Imgproxy\Laravel')->toUseStrictTypes();

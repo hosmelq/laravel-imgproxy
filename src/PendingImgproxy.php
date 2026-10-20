@@ -37,9 +37,8 @@ final class PendingImgproxy
     private function __construct(
         private readonly FilesystemAdapter $disk,
         private readonly string $path,
-        private UrlBuilder $builder
-    ) {
-    }
+        private UrlBuilder $builder,
+    ) {}
 
     /**
      * Create a new pending instance for the given disk and path.
@@ -59,8 +58,8 @@ final class PendingImgproxy
                 $this->disk->temporaryUrl(
                     $this->path,
                     $this->temporaryExpiration,
-                    $this->temporaryOptions
-                )
+                    $this->temporaryOptions,
+                ),
             );
         }
 
@@ -107,7 +106,7 @@ final class PendingImgproxy
         if (! $builder instanceof UrlBuilder) {
             throw new BadMethodCallException(sprintf(
                 'Method [%s] did not return an imgproxy builder instance.',
-                $name
+                $name,
             ));
         }
 

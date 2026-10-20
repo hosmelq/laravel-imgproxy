@@ -19,8 +19,7 @@ class ImgproxyServiceProvider extends PackageServiceProvider
         $package->name('laravel-imgproxy')
             ->hasConfigFile()
             ->hasInstallCommand(function (InstallCommand $command): void {
-                $command->askToStarRepoOnGitHub('hosmelq/laravel-imgproxy')
-                    ->publishConfigFile();
+                $command->askToStarRepoOnGitHub('hosmelq/laravel-imgproxy')->publishConfigFile();
             });
     }
 

@@ -55,11 +55,12 @@ final class ImgproxyManager
         $key = Config::encryptionKey();
 
         if (is_null($key)) {
-            throw new InvalidArgumentException('imgproxy encryption_key is required when source_encoding is encrypted.');
+            throw new InvalidArgumentException(
+                'imgproxy encryption_key is required when source_encoding is encrypted.',
+            );
         }
 
-        return $builder->useEncryptedSource()
-            ->withEncryptionKey($key, self::$ivGeneratorCallback);
+        return $builder->useEncryptedSource()->withEncryptionKey($key, self::$ivGeneratorCallback);
     }
 
     /**

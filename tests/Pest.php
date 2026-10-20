@@ -11,7 +11,12 @@ pest()->extend(TestCase::class)->in(__DIR__);
  */
 function base64_decode_url(string $value): string
 {
-    $padded = mb_str_pad($value, mb_strlen($value) + (4 - mb_strlen($value) % 4) % 4, '=', STR_PAD_RIGHT);
+    $padded = mb_str_pad(
+        $value,
+        mb_strlen($value) + (4 - mb_strlen($value) % 4) % 4,
+        '=',
+        STR_PAD_RIGHT,
+    );
 
     return base64_decode(strtr($padded, '-_', '+/'), true);
 }

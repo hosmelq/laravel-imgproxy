@@ -1,4 +1,8 @@
 rules:
+  ref-version-mismatch:
+    ignore:
+      # dev-null.sh has no tags, so the pinned commit tracks its production branch.
+      - devnull.yml
   unpinned-uses:
     config:
       policies:
