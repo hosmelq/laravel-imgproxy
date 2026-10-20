@@ -6,9 +6,12 @@ namespace HosmelQ\Imgproxy\Laravel;
 
 use BadMethodCallException;
 use DateTimeInterface;
+use HosmelQ\Imgproxy\InfoUrlBuilder;
+use HosmelQ\Imgproxy\SourceEncoding;
 use HosmelQ\Imgproxy\UrlBuilder;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Traits\ForwardsCalls;
+use InvalidArgumentException;
 
 final class PendingImgproxy
 {
@@ -27,17 +30,12 @@ final class PendingImgproxy
     private array $temporaryOptions = [];
 
     /**
-     * Whether to generate a temporary URL from the disk.
-     */
-    private bool $useTemporary = false;
-
-    /**
      * Create a new pending imgproxy instance.
      */
     private function __construct(
         private readonly FilesystemAdapter $disk,
         private readonly string $path,
-        private UrlBuilder $builder,
+        private InfoUrlBuilder|UrlBuilder $builder,
     ) {}
 
     /**
@@ -49,21 +47,35 @@ final class PendingImgproxy
     }
 
     /**
+     * Create a pending image-info URL for the given disk and path.
+     */
+    public static function forInfo(FilesystemAdapter $disk, string $path): self
+    {
+        return new self($disk, $path, resolve(ImgproxyManager::class)->infoBuilder());
+    }
+
+    /**
      * Build the final imgproxy URL for the disk path.
      */
-    public function build(): string
-    {
-        if ($this->useTemporary && $this->temporaryExpiration instanceof DateTimeInterface) {
-            return $this->builder->build(
-                $this->disk->temporaryUrl(
-                    $this->path,
-                    $this->temporaryExpiration,
-                    $this->temporaryOptions,
-                ),
-            );
+    public function build(
+        null|string $extension = null,
+        null|SourceEncoding $encoding = null,
+    ): string {
+        if ($this->builder instanceof InfoUrlBuilder && ! is_null($extension)) {
+            throw new InvalidArgumentException('Image-info URLs do not support output extensions.');
         }
 
-        return $this->builder->build($this->disk->url($this->path));
+        $source = $this->temporaryExpiration instanceof DateTimeInterface
+            ? $this->disk->temporaryUrl(
+                $this->path,
+                $this->temporaryExpiration,
+                $this->temporaryOptions,
+            )
+            : $this->disk->url($this->path);
+
+        return $this->builder instanceof InfoUrlBuilder
+            ? $this->builder->build($source, $encoding)
+            : $this->builder->build($source, $extension, $encoding);
     }
 
     /**
@@ -77,7 +89,6 @@ final class PendingImgproxy
 
         $clone->temporaryExpiration = $expiration;
         $clone->temporaryOptions = $options;
-        $clone->useTemporary = true;
 
         return $clone;
     }
@@ -85,7 +96,7 @@ final class PendingImgproxy
     /**
      * Clone with a new builder instance.
      */
-    private function withBuilder(UrlBuilder $builder): self
+    private function withBuilder(InfoUrlBuilder|UrlBuilder $builder): self
     {
         $clone = clone $this;
 
@@ -97,13 +108,13 @@ final class PendingImgproxy
     /**
      * Proxy builder methods for fluent chaining.
      *
-     * @param array<int, mixed> $arguments
+     * @param array<array-key, mixed> $arguments
      */
     public function __call(string $name, array $arguments): self
     {
         $builder = $this->forwardCallTo($this->builder, $name, $arguments);
 
-        if (! $builder instanceof UrlBuilder) {
+        if (! $builder instanceof UrlBuilder && ! $builder instanceof InfoUrlBuilder) {
             throw new BadMethodCallException(sprintf(
                 'Method [%s] did not return an imgproxy builder instance.',
                 $name,

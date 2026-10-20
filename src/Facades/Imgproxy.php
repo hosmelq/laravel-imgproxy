@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HosmelQ\Imgproxy\Laravel\Facades;
 
+use HosmelQ\Imgproxy\InfoUrlBuilder;
 use HosmelQ\Imgproxy\Laravel\ImgproxyManager;
 use HosmelQ\Imgproxy\UrlBuilder;
 use Illuminate\Support\Facades\Facade;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static UrlBuilder builder()
  * @method static void buildIvUsing(null|callable $callback)
+ * @method static InfoUrlBuilder infoBuilder()
  *
  * @see ImgproxyManager
  */

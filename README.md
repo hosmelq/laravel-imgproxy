@@ -2,206 +2,212 @@
 
 Build imgproxy URLs in Laravel with optional encryption and signing.
 
-## Introduction
-
-Build imgproxy URLs from Laravel with every documented option (free and pro). Grab a builder from the facade for external sources, or call the `imgproxy` disk macro when you want to start from storage paths.
-
-```php
-use HosmelQ\Imgproxy\Laravel\Facades\Imgproxy;
-use HosmelQ\Imgproxy\ResizingType;
-
-$url = Imgproxy::builder()
-    ->format(extension: 'png')
-    ->resize(type: ResizingType::Fit, width: 1200, height: 630)
-    ->build(sourceUrl: 'https://example.com/image.jpg');
-```
-
 ## Requirements
 
-- PHP 8.4+
+- ext-openssl
 - Laravel 12+
-- OpenSSL extension (for source encryption)
+- PHP 8.4+
 
-## Installation & setup
+## Installation
 
-Install via Composer:
+Install Laravel imgproxy with Composer:
 
 ```bash
 composer require hosmelq/laravel-imgproxy
 ```
 
-### Publishing the config file
+Set `IMGPROXY_BASE_URL` to the root URL of the imgproxy server. Set
+`IMGPROXY_KEY` and `IMGPROXY_SALT` to the hex-encoded key and salt the server
+uses to check signatures.
 
-Optionally publish the config file:
+Without a key and salt, URLs are built with `insecure` in place of a signature.
+Sources are Base64-encoded by default. Signing and Base64 sources work with any
+imgproxy server.
 
-```bash
-php artisan vendor:publish --tag="imgproxy-config"
-```
+## Build URLs
 
-<details>
-<summary>View the published config file.</summary>
-
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Base URL
-    |--------------------------------------------------------------------------
-    |
-    | This URL is used when generating imgproxy links. Set it to the root of
-    | your imgproxy instance, including scheme and host.
-    |
-    */
-
-    'base_url' => env('IMGPROXY_BASE_URL'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Encryption Key
-    |--------------------------------------------------------------------------
-    |
-    | Hex-encoded AES key used for encrypted sources. Set this only when the
-    | source encoding below is configured to "encrypted".
-    |
-    */
-
-    'encryption_key' => env('IMGPROXY_ENCRYPTION_KEY'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Signing Keys
-    |--------------------------------------------------------------------------
-    |
-    | Hex-encoded key and salt used to sign imgproxy URLs. Provide both or
-    | leave both empty. Signature size (bytes) trims the signature length
-    | when your server expects a shorter value.
-    |
-    */
-
-    'key' => env('IMGPROXY_KEY'),
-
-    'salt' => env('IMGPROXY_SALT'),
-
-    'signature_size' => env('IMGPROXY_SIGNATURE_SIZE'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Source Encoding
-    |--------------------------------------------------------------------------
-    |
-    | Controls how sources are encoded before signing.
-    |
-    | Supported encodings: "base64", "encrypted", "plain"
-    |
-    */
-
-    'source_encoding' => env('IMGPROXY_SOURCE_ENCODING', 'base64'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Option Names
-    |--------------------------------------------------------------------------
-    |
-    | Use imgproxy's short option names instead of the long names.
-    |
-    */
-
-    'use_short_options' => env('IMGPROXY_SHORT_OPTIONS', false),
-
-];
-```
-</details>
-
-## Basic usage
-
-### Getting started
-
-Use the builder from the facade. Chain options if needed, then build the URL.
+Start a builder with the `Imgproxy` facade, add processing options, and pass the
+source URL to `build()`:
 
 ```php
 use HosmelQ\Imgproxy\Laravel\Facades\Imgproxy;
 use HosmelQ\Imgproxy\ResizingType;
-use HosmelQ\Imgproxy\Support\Gravity;
 
 $url = Imgproxy::builder()
-    ->format(extension: 'png')
-    ->gravity(gravity: Gravity::smart())
-    ->quality(quality: 80)
-    ->resize(type: ResizingType::Fit, width: 1200, height: 630)
-    ->build(sourceUrl: 'https://example.com/assets/product.jpg');
+    ->resize(ResizingType::Fill, 300, 300)
+    ->quality(80)
+    ->build('https://example.com/avatar.jpg');
 ```
 
-### Using the filesystem macro
-
-Call the `imgproxy` macro on any filesystem disk path to build from storage.
+The `imgproxy()` helper returns the same builder:
 
 ```php
+use HosmelQ\Imgproxy\ResizingType;
+
+use function HosmelQ\Imgproxy\Laravel\imgproxy;
+
+$url = imgproxy()
+    ->resize(ResizingType::Fit, 1200)
+    ->build('https://example.com/header.jpg');
+```
+
+Each call starts a fresh builder from the package configuration. Options appear
+in the URL in the order they are added. See
+[hosmelq/imgproxy](https://github.com/hosmelq/imgproxy-php) for every
+processing option.
+
+`format()` sets the output format option without changing the URL's extension.
+Pass an extension to `build()` to append one:
+
+```php
+$url = Imgproxy::builder()
+    ->format('webp')
+    ->build('https://example.com/photo.jpg', 'webp');
+```
+
+## Build URLs from disks
+
+Call `imgproxy()` on a filesystem disk to use a file's URL as the source:
+
+```php
+use HosmelQ\Imgproxy\ResizingType;
 use Illuminate\Support\Facades\Storage;
 
 $url = Storage::disk('public')
-    ->imgproxy(path: 'images/headers/welcome.jpg')
-    ->build();
+    ->imgproxy('images/header.jpg')
+    ->resize(ResizingType::Fit, 1200)
+    ->build('webp');
 ```
 
-The `imgproxy` macro starts from the disk path, applies your global imgproxy settings, and returns a ready-to-use URL.
+Builder options chain directly from the disk. `build()` takes no source URL, so
+its first argument is the output extension.
 
-### Generating temporary URLs
-
-Wrap your storage temporary URL before imgproxy processes it. Pass expiration and any disk-specific options. This uses the filesystem macro.
+Use `temporary()` when the source should be a temporary URL from the disk:
 
 ```php
-use Illuminate\Support\Facades\Storage;
-
 $url = Storage::disk('s3')
-    ->imgproxy(path: 'private/reports/weekly.png')
-    ->temporary(expiration: now()->addMinutes(10))
+    ->imgproxy('private/report.png')
+    ->temporary(now()->addMinutes(10))
     ->build();
 ```
 
-The disk's temporary URL becomes the source, so the imgproxy link expires in 10 minutes alongside it.
+`temporary()` also accepts the disk's temporary URL options as its second
+argument. The expiration applies to the source URL only. Add `expires()` with a
+Unix timestamp when the imgproxy URL should expire too.
 
-## Advanced usage
+## Read image information
 
-### Custom IV generation
+Image-info URLs require imgproxy Pro. Start one with `Imgproxy::infoBuilder()`,
+or with `imgproxyInfo()` on a disk:
 
-Provide your own IV generator for encrypted sources when you need a custom strategy (imgproxy pro).
+```php
+use HosmelQ\Imgproxy\Laravel\Facades\Imgproxy;
+use Illuminate\Support\Facades\Storage;
+
+$url = Imgproxy::infoBuilder()
+    ->dimensions()
+    ->size()
+    ->build('https://example.com/photo.jpg');
+
+$url = Storage::disk('public')
+    ->imgproxyInfo('photo.jpg')
+    ->dimensions()
+    ->build();
+```
+
+Image-info URLs are signed and encoded the same way as processing URLs. They do
+not accept an output extension.
+
+## Encrypt source URLs
+
+Source encryption requires imgproxy Pro. Set `IMGPROXY_SOURCE_ENCODING` to
+`encrypted` and `IMGPROXY_ENCRYPTION_KEY` to the hex-encoded key the server
+uses. The key must decode to 16, 24, or 32 bytes.
+
+By default, the IV is derived from the source URL and the key, so the same
+source always produces the same URL.
+
+Call `Imgproxy::buildIvUsing()` from a service provider to generate the IV with
+a custom callback:
 
 ```php
 use HosmelQ\Imgproxy\Laravel\Facades\Imgproxy;
 
-Imgproxy::buildIvUsing(fn (): string => random_bytes(16));
+Imgproxy::buildIvUsing(function (string $sourceUrl): string {
+    $hash = hash_hmac('sha256', $sourceUrl, config()->string('app.key'), true);
+
+    return substr($hash, 0, 16);
+});
 ```
 
-Use this when your security policy requires a specific IV pattern. The callback runs on every encrypted source build.
+The callback receives the source URL, must return exactly 16 bytes, and applies
+to processing and image-info URLs. Pass `null` to restore the default. Keep the
+IV deterministic: a random IV produces a different URL on every build, which
+defeats caching. The example derives the IV from `APP_KEY`, so rotating that key
+changes every encrypted URL it generates.
 
-For more builder options and patterns, see the base package: [hosmelq/imgproxy](https://github.com/hosmelq/imgproxy-php).
+## Configuration
 
-## Testing
+Publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=imgproxy-config
+```
+
+The [configuration file](config/imgproxy.php) also covers the arguments
+separator, signature size, short option names, presets-only mode, option
+aliases, source chunking, source filenames, and trusted signatures, each with
+its environment variable where one exists. Image-info URLs use
+`info_only_presets` and `info_option_aliases` in place of `only_presets` and
+`option_aliases`, and share every other setting.
+
+Creating a builder throws an `InvalidArgumentException` when the base URL is
+missing, the source encoding is unknown, encrypted sources have no encryption
+key, or an option alias names an unknown option.
+
+## Use dependency injection
+
+Inject `ImgproxyManager` when a class should not depend on the facade:
+
+```php
+use HosmelQ\Imgproxy\Laravel\ImgproxyManager;
+use HosmelQ\Imgproxy\ResizingType;
+
+final class AvatarUrl
+{
+    public function __construct(private ImgproxyManager $imgproxy) {}
+
+    public function handle(string $source): string
+    {
+        return $this->imgproxy->builder()
+            ->resize(ResizingType::Fill, 300, 300)
+            ->build($source);
+    }
+}
+```
+
+## Deploy imgproxy
+
+Deploy a ready-to-run imgproxy server with the Railway template:
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/imgproxy?referralCode=i6jUWN&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
+## Development
+
+Run the test suite with:
 
 ```bash
 composer test
 ```
 
-## Deployments
-
-Want a ready-to-run imgproxy instance? Use the Railway template:
-
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/imgproxy?referralCode=i6jUWN&utm_medium=integration&utm_source=template&utm_campaign=generic)
-
 ## Changelog
 
-Please see [CHANGELOG.md](CHANGELOG.md) for recent changes.
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
 
-## Credits
+## Contributing
 
-- [Hosmel Quintana](https://github.com/hosmelq)
-- [All Contributors](../../contributors)
+Pull requests are welcome. Please run the test suite before submitting changes.
 
 ## License
 
-The MIT License (MIT). Please see [LICENSE.md](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

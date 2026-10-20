@@ -31,6 +31,10 @@ class ImgproxyServiceProvider extends PackageServiceProvider
         FilesystemAdapter::macro('imgproxy', function (string $path): PendingImgproxy {
             return PendingImgproxy::for($this, $path);
         });
+
+        FilesystemAdapter::macro('imgproxyInfo', function (string $path): PendingImgproxy {
+            return PendingImgproxy::forInfo($this, $path);
+        });
     }
 
     /**
