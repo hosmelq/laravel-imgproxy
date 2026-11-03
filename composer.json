@@ -20,6 +20,10 @@
             "email": "hosmelq@gmail.com"
         }
     ],
+    "homepage": "https://github.com/hosmelq/laravel-imgproxy",
+    "support": {
+        "docs": "https://github.com/hosmelq/laravel-imgproxy#readme"
+    },
     "require": {
         "php": "^8.4",
         "hosmelq/imgproxy": "^2.0",
