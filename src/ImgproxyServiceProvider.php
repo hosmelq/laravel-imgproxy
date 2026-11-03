@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace HosmelQ\Imgproxy\Laravel;
 
 use Illuminate\Filesystem\FilesystemAdapter;
+use Override;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -14,6 +15,7 @@ class ImgproxyServiceProvider extends PackageServiceProvider
     /**
      * Configure package.
      */
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package->name('laravel-imgproxy')
@@ -26,6 +28,7 @@ class ImgproxyServiceProvider extends PackageServiceProvider
     /**
      * Bootstrap any application services.
      */
+    #[Override]
     public function packageBooted(): void
     {
         FilesystemAdapter::macro('imgproxy', function (string $path): PendingImgproxy {
@@ -40,6 +43,7 @@ class ImgproxyServiceProvider extends PackageServiceProvider
     /**
      * Register any application services.
      */
+    #[Override]
     public function packageRegistered(): void
     {
         $this->app->singleton(ImgproxyManager::class);

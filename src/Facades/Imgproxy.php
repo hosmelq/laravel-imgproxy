@@ -8,6 +8,7 @@ use HosmelQ\Imgproxy\InfoUrlBuilder;
 use HosmelQ\Imgproxy\Laravel\ImgproxyManager;
 use HosmelQ\Imgproxy\UrlBuilder;
 use Illuminate\Support\Facades\Facade;
+use Override;
 
 /**
  * @method static UrlBuilder builder()
@@ -21,6 +22,7 @@ class Imgproxy extends Facade
     /**
      * {@inheritDoc}
      */
+    #[Override]
     protected static function getFacadeAccessor(): string
     {
         return ImgproxyManager::class;
