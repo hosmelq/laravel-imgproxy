@@ -9,17 +9,11 @@ use InvalidArgumentException;
 
 class Config
 {
-    /**
-     * Get the option argument separator.
-     */
     public static function argumentsSeparator(): string
     {
         return ConfigFacade::string('imgproxy.arguments_separator');
     }
 
-    /**
-     * Get the imgproxy base URL.
-     */
     public static function baseUrl(): string
     {
         return ConfigFacade::string('imgproxy.base_url');
@@ -33,17 +27,12 @@ class Config
         return self::nullableString('imgproxy.encryption_key');
     }
 
-    /**
-     * Check whether image-info URLs use only presets.
-     */
     public static function infoOnlyPresets(): bool
     {
         return ConfigFacade::boolean('imgproxy.info_only_presets');
     }
 
     /**
-     * Get image-info option aliases.
-     *
      * @return array<string, string>
      */
     public static function infoOptionAliases(): array
@@ -85,9 +74,6 @@ class Config
         return self::nullableString('imgproxy.salt');
     }
 
-    /**
-     * Get the signature size.
-     */
     public static function signatureSize(): null|int
     {
         return is_null(ConfigFacade::get('imgproxy.signature_size'))
@@ -103,9 +89,6 @@ class Config
         return ConfigFacade::integer('imgproxy.source_chunk_size');
     }
 
-    /**
-     * Get the default source encoding value.
-     */
     public static function sourceEncoding(): string
     {
         return ConfigFacade::string('imgproxy.source_encoding');
@@ -127,17 +110,12 @@ class Config
         return self::nullableString('imgproxy.trusted_signature');
     }
 
-    /**
-     * Check if short option names are enabled.
-     */
     public static function useShortOptions(): bool
     {
         return ConfigFacade::boolean('imgproxy.use_short_options');
     }
 
     /**
-     * Read an option alias map.
-     *
      * @return array<string, string>
      */
     private static function aliases(string $key): array

@@ -7,6 +7,10 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\Config\RectorConfig;
 
 return RectorConfig::configure()
-    ->withCache(__DIR__.'/.cache/rector', FileCacheStorage::class)
-    ->withPaths([__DIR__.'/config', __DIR__.'/src', __DIR__.'/tests'])
+    ->withCache('./.cache/rector', FileCacheStorage::class)
+    ->withPaths([
+        __DIR__.'/config',
+        __DIR__.'/src',
+        __DIR__.'/tests',
+    ])
     ->withSets([CodingStandard::RECTOR_LARAVEL_PACKAGE, CodingStandard::RECTOR_PEST]);

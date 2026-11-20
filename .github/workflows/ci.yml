@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Continuous integration
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
         run: vendor/bin/rector --ansi --dry-run
 
       - name: Check code style
-        run: composer ecs:check
+        run: vendor/bin/ecs check
 
       - name: Check static code
         run: composer phpstan
@@ -51,7 +51,7 @@ jobs:
         run: vendor/bin/composer-dependency-analyser
 
   tests:
-    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} (${{ matrix.dependencies }})
+    name: PHP ${{ matrix.php }} (${{ matrix.dependencies }})
 
     runs-on: ubuntu-latest
 
@@ -60,24 +60,9 @@ jobs:
       matrix:
         dependencies: [prefer-stable]
         include:
-          - laravel: 12.*
-            pest: '^4.7'
-            testbench: '^10.9'
-          - laravel: 13.*
-            pest: '^5.3'
-            testbench: '^11.3'
           - dependencies: prefer-lowest
-            laravel: 12.*
-            pest: '^4.7'
             php: '8.4'
-            testbench: '^10.9'
-          - dependencies: prefer-lowest
-            laravel: 13.*
-            pest: '^5.3'
-            php: '8.4'
-            testbench: '^11.3'
-        laravel: ['12.*', '13.*']
-        php: ['8.4', '8.5']
+        php: ['8.4', '8.5', '8.6']
 
     steps:
       - name: Checkout
@@ -96,13 +81,7 @@ jobs:
       - name: Install composer dependencies
         env:
           DEPENDENCIES: ${{ matrix.dependencies }}
-          LARAVEL: ${{ matrix.laravel }}
-          PEST: ${{ matrix.pest }}
-          TESTBENCH: ${{ matrix.testbench }}
-        run: |
-          composer remove --dev pestphp/pest-plugin-rector --no-interaction --no-update
-          composer require --dev "laravel/framework:$LARAVEL" "orchestra/testbench:$TESTBENCH" "pestphp/pest:$PEST" --no-interaction --no-update
-          composer update --no-interaction --no-progress --prefer-dist --prefer-stable --"$DEPENDENCIES"
+        run: composer update --no-interaction --no-progress --prefer-dist --prefer-stable --"$DEPENDENCIES"
 
       - name: Installed dependencies
         run: composer show -D

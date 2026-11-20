@@ -19,9 +19,6 @@ use Override;
  */
 class Imgproxy extends Facade
 {
-    /**
-     * {@inheritDoc}
-     */
     #[Override]
     protected static function getFacadeAccessor(): string
     {

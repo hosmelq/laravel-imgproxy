@@ -5,7 +5,7 @@ Build imgproxy URLs in Laravel with optional encryption and signing.
 ## Requirements
 
 - ext-openssl
-- Laravel 12+
+- Laravel 13+
 - PHP 8.4+
 
 ## Installation

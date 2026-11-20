@@ -3,5 +3,3 @@ providers:
 
 workbench:
   install: false
-  discovers:
-    config: true

@@ -12,9 +12,6 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class ImgproxyServiceProvider extends PackageServiceProvider
 {
-    /**
-     * Configure package.
-     */
     #[Override]
     public function configurePackage(Package $package): void
     {
@@ -25,9 +22,6 @@ class ImgproxyServiceProvider extends PackageServiceProvider
             });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     #[Override]
     public function packageBooted(): void
     {
@@ -40,9 +34,6 @@ class ImgproxyServiceProvider extends PackageServiceProvider
         });
     }
 
-    /**
-     * Register any application services.
-     */
     #[Override]
     public function packageRegistered(): void
     {

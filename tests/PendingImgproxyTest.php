@@ -18,7 +18,10 @@ it('builds image-info URLs from temporary storage sources', function (): void {
     $disk = $this->mock(
         FilesystemAdapter::class,
         function (MockInterface $mock) use ($expiration, $options): void {
-            $mock->shouldReceive('temporaryUrl')->once()->with('photo.png', $expiration, $options)
+            $mock
+                ->shouldReceive('temporaryUrl')
+                ->once()
+                ->with('photo.png', $expiration, $options)
                 ->andReturn('https://example.test/temporary?signature=abc123');
         },
     );

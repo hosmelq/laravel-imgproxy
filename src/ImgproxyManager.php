@@ -63,8 +63,6 @@ final class ImgproxyManager
     }
 
     /**
-     * Apply a configured source encoding strategy.
-     *
      * @return ($builder is InfoUrlBuilder ? InfoUrlBuilder : UrlBuilder)
      */
     private function applySourceEncoding(
@@ -90,9 +88,6 @@ final class ImgproxyManager
         };
     }
 
-    /**
-     * Get the required imgproxy base URL.
-     */
     private function baseUrl(): string
     {
         $baseUrl = Config::baseUrl();
